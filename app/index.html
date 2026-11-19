@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunset Cover Studio — make your own neon-sunset cover art</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">☀</span>
+    <span class="brand-name">Sunset Cover Studio</span>
+    <span class="brand-tag">neon-sunset cover maker</span>
+  </div>
+  <div class="size-picker" role="group" aria-label="Export size">
+    <span class="size-label">Size</span>
+    <button type="button" class="size-btn is-active" data-size="1080x1080">1080 × 1080</button>
+    <button type="button" class="size-btn" data-size="1080x1350">1080 × 1350</button>
+    <button type="button" class="size-btn" data-size="1920x1080">1920 × 1080</button>
+    <button type="button" class="size-btn" data-size="1080x1920">1080 × 1920</button>
+  </div>
+  <button type="button" id="exportBtn" class="export-btn">Export PNG ↓</button>
+</header>
+
+<main class="workspace">
+  <aside class="controls" aria-label="Cover controls">
+    <section class="panel">
+      <h2>Photos</h2>
+      <p class="hint">Drop photos anywhere, or pick files. Click a photo, then click a panel to place it.</p>
+      <div id="photoTray" class="tray"></div>
+      <label class="add-photos" for="fileInput">+ Add photos from your computer</label>
+      <input type="file" id="fileInput" accept="image/*" multiple hidden>
+      <button type="button" id="loadSamplesBtn" class="ghost-btn">Load demo photos</button>
+    </section>
+
+    <section class="panel">
+      <h2>Layout</h2>
+      <div id="layoutPicker" class="layout-picker"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Colour grade</h2>
+      <div id="gradePicker" class="grade-picker"></div>
+      <label class="check"><input type="checkbox" id="grainToggle" checked> Film grain</label>
+      <label class="check"><input type="checkbox" id="vignetteToggle" checked> Vignette</label>
+    </section>
+
+    <section class="panel">
+      <h2>Caption</h2>
+      <label class="field-label" for="titleInput">Title</label>
+      <input type="text" id="titleInput" value="VICE CITY" maxlength="28" spellcheck="false">
+      <label class="field-label" for="subtitleInput">Subtitle</label>
+      <input type="text" id="subtitleInput" value="one last summer" maxlength="48" spellcheck="false">
+      <label class="check"><input type="checkbox" id="gradientToggle" checked> Sunset gradient title</label>
+      <label class="check"><input type="checkbox" id="outlineToggle" checked> Bold outline + shadow</label>
+    </section>
+
+    <section class="panel">
+      <h2>Selected panel</h2>
+      <p class="hint" id="panelHint">Click a panel on the cover to select it, then drag to move the photo inside.</p>
+      <label class="field-label" for="zoomSlider">Zoom <span id="zoomValue">1.00×</span></label>
+      <input type="range" id="zoomSlider" min="0.5" max="3" step="0.05" value="1">
+      <div class="fit-row">
+        <button type="button" id="fitBtn" class="ghost-btn">Fit: fill</button>
+        <button type="button" id="resetPanelBtn" class="ghost-btn">Reset panel</button>
+      </div>
+    </section>
+  </aside>
+
+  <section class="stage" id="dropZone" aria-label="Cover preview">
+    <canvas id="previewCanvas" width="1080" height="1080"></canvas>
+    <p class="stage-hint">Drag a photo inside a panel to reposition it · scroll on a panel to zoom</p>
+  </section>
+</main>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
