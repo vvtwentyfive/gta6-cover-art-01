@@ -1,80 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sunset Cover Studio — make your own neon-sunset cover art</title>
-<link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css">
+<meta name="description" content="Sunset Cover Studio: turn your photos into a Vice City sunset poster — 5 layouts, 5 neon grades, PNG export in 4 sizes. Works offline.">
+<title>Sunset Cover Studio — GTA-style cover art maker</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">
-    <span class="brand-mark" aria-hidden="true">☀</span>
-    <span class="brand-name">Sunset Cover Studio</span>
-    <span class="brand-tag">neon-sunset cover maker</span>
+  <div class="brand"><span class="brand-mark">SCS</span>
+    <div><h1>Sunset Cover Studio</h1><p>Turn your photos into a Vice City sunset poster.</p></div>
   </div>
-  <div class="size-picker" role="group" aria-label="Export size">
-    <span class="size-label">Size</span>
-    <button type="button" class="size-btn is-active" data-size="1080x1080">1080 × 1080</button>
-    <button type="button" class="size-btn" data-size="1080x1350">1080 × 1350</button>
-    <button type="button" class="size-btn" data-size="1920x1080">1920 × 1080</button>
-    <button type="button" class="size-btn" data-size="1080x1920">1080 × 1920</button>
+  <div class="top-actions">
+    <button id="btn-sample-boulevard" type="button" class="ghost">Use boulevard sample</button>
+    <button id="btn-sample-rooftop" type="button" class="ghost">Use rooftop sample</button>
+    <button id="btn-reset" type="button" class="ghost">Reset</button>
   </div>
-  <button type="button" id="exportBtn" class="export-btn">Export PNG ↓</button>
 </header>
-
-<main class="workspace">
-  <aside class="controls" aria-label="Cover controls">
-    <section class="panel">
-      <h2>Photos</h2>
-      <p class="hint">Drop photos anywhere, or pick files. Click a photo, then click a panel to place it.</p>
-      <div id="photoTray" class="tray"></div>
-      <label class="add-photos" for="fileInput">+ Add photos from your computer</label>
-      <input type="file" id="fileInput" accept="image/*" multiple hidden>
-      <button type="button" id="loadSamplesBtn" class="ghost-btn">Load demo photos</button>
-    </section>
-
-    <section class="panel">
-      <h2>Layout</h2>
-      <div id="layoutPicker" class="layout-picker"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Colour grade</h2>
-      <div id="gradePicker" class="grade-picker"></div>
-      <label class="check"><input type="checkbox" id="grainToggle" checked> Film grain</label>
-      <label class="check"><input type="checkbox" id="vignetteToggle" checked> Vignette</label>
-    </section>
-
-    <section class="panel">
-      <h2>Caption</h2>
-      <label class="field-label" for="titleInput">Title</label>
-      <input type="text" id="titleInput" value="VICE CITY" maxlength="28" spellcheck="false">
-      <label class="field-label" for="subtitleInput">Subtitle</label>
-      <input type="text" id="subtitleInput" value="one last summer" maxlength="48" spellcheck="false">
-      <label class="check"><input type="checkbox" id="gradientToggle" checked> Sunset gradient title</label>
-      <label class="check"><input type="checkbox" id="outlineToggle" checked> Bold outline + shadow</label>
-    </section>
-
-    <section class="panel">
-      <h2>Selected panel</h2>
-      <p class="hint" id="panelHint">Click a panel on the cover to select it, then drag to move the photo inside.</p>
-      <label class="field-label" for="zoomSlider">Zoom <span id="zoomValue">1.00×</span></label>
-      <input type="range" id="zoomSlider" min="0.5" max="3" step="0.05" value="1">
-      <div class="fit-row">
-        <button type="button" id="fitBtn" class="ghost-btn">Fit: fill</button>
-        <button type="button" id="resetPanelBtn" class="ghost-btn">Reset panel</button>
+<main class="app">
+  <section class="controls" aria-label="Cover controls">
+    <div class="group">
+      <h2>1 · Photos</h2>
+      <p class="hint">Click a panel in the preview to select it, then assign a photo. Drag inside a panel to reposition it.</p>
+      <label class="file-label">Choose photos…
+        <input id="photo-input" type="file" accept="image/*" multiple>
+      </label>
+      <div id="dropzone" class="dropzone" tabindex="0">Drop photos here<br><span>or paste from clipboard (Ctrl+V)</span></div>
+      <div id="library" class="library" aria-label="Photo library"></div>
+      <label class="row">Selected panel photo
+        <select id="panel-photo"><option value="">— empty —</option></select>
+      </label>
+      <label class="row">Zoom <span id="zoom-val">100%</span>
+        <input id="zoom" type="range" min="50" max="250" value="100">
+      </label>
+      <div class="row-btns">
+        <button id="btn-fill-all" type="button">Fill all panels with this photo</button>
+        <button id="btn-clear-panel" type="button" class="ghost">Clear panel</button>
       </div>
-    </section>
-  </aside>
-
-  <section class="stage" id="dropZone" aria-label="Cover preview">
-    <canvas id="previewCanvas" width="1080" height="1080"></canvas>
-    <p class="stage-hint">Drag a photo inside a panel to reposition it · scroll on a panel to zoom</p>
+    </div>
+    <div class="group">
+      <h2>2 · Layout</h2>
+      <div id="layouts" class="swatches" role="radiogroup" aria-label="Poster layout"></div>
+    </div>
+    <div class="group">
+      <h2>3 · Colour grade</h2>
+      <div id="grades" class="swatches" role="radiogroup" aria-label="Colour grade"></div>
+      <label class="check"><input id="grain" type="checkbox" checked> Film grain</label>
+      <label class="check"><input id="vignette" type="checkbox" checked> Vignette</label>
+      <label class="check"><input id="border" type="checkbox" checked> Panel gaps &amp; border</label>
+    </div>
+    <div class="group">
+      <h2>4 · Caption</h2>
+      <label class="row">Title
+        <input id="title" type="text" maxlength="28" value="NEON HEAT">
+      </label>
+      <label class="row">Subtitle
+        <input id="subtitle" type="text" maxlength="60" value="Vice City · Summer 2026">
+      </label>
+      <label class="row">Title size <span id="title-size-val">100%</span>
+        <input id="title-size" type="range" min="60" max="150" value="100">
+      </label>
+    </div>
+    <div class="group">
+      <h2>5 · Export</h2>
+      <label class="row">Size
+        <select id="export-size">
+          <option value="1080x1080">1080 × 1080 — Square post</option>
+          <option value="1080x1350">1080 × 1350 — Portrait post</option>
+          <option value="1920x1080">1920 × 1080 — Landscape / wallpaper</option>
+          <option value="1080x1920">1080 × 1920 — Story</option>
+        </select>
+      </label>
+      <button id="btn-export" type="button" class="primary">Export PNG</button>
+      <p id="status" role="status"></p>
+    </div>
+  </section>
+  <section class="preview-wrap" aria-label="Live preview">
+    <div class="preview-head"><span id="preview-label">Preview · 1080 × 1080</span><span id="panel-label">Panel 1 selected</span></div>
+    <canvas id="cover" width="1080" height="1080" aria-label="Cover preview"></canvas>
+    <p class="fineprint">Original illustrated artwork — no Rockstar logos, artwork or fonts. Photos stay on your machine; nothing is uploaded.</p>
   </section>
 </main>
-
-<script type="module" src="src/main.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
