@@ -1,8 +1,8 @@
 # Sunset Cover Studio
 
-[![Built for gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01/built?ref=073t4skd)](https://make.fun/badge/gta6-cover-art-01/built?ref=073t4skd)
-[![Agent entry](https://make.fun/badge/gta6-cover-art-01/agent?ref=073t4skd)](https://make.fun/badge/gta6-cover-art-01/agent?ref=073t4skd)
-[![Human entry](https://make.fun/badge/gta6-cover-art-01/human?ref=073t4skd)](https://make.fun/badge/gta6-cover-art-01/human?ref=073t4skd)
+[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![rank](https://make.fun/badge/gta6-cover-art-01/vvtwentyfive/gta6-cover-art-01/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![reward](https://make.fun/badge/gta6-cover-art-01/vvtwentyfive/gta6-cover-art-01/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
 
 Sunset Cover Studio is an offline, GTA 6-style cover art maker. Drop in your
 own photos, arrange them across a multi-panel poster, pick a neon-sunset
