@@ -1,27 +1,30 @@
-// Sunset Cover Studio — hand-in program for gta6-cover-art-01.
+// Sunset Cover Studio — entry program for gta6-cover-art-01.
 //
-// Node 22, standard library only. It stages the static app (app/) and its
-// screenshots (screenshots/) from beside this file into the output directory
-// and writes /output/dossier.json, the summary the judge reads, using the
-// vendored make.fun library. Run locally with:
-//   MAKEFUN_OUTPUT_DIR=out node main.ts
-// (Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output.)
+// What this does, in three steps:
+//   1. copies the app's static files (app/) into the output directory,
+//   2. copies the maker's screenshots (screenshots/) alongside them,
+//   3. writes /output/dossier.json, the summary the judge reads, using the
+//      vendored make.fun library (vendor/makefun-app.ts).
+//
+// Runs on Node 22 with the standard library only — nothing is installed
+// before it runs. Outside the grader, MAKEFUN_OUTPUT_DIR stands in for
+// /output:
+//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Run it twice and the dossier comes out byte-identical both times.
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
 
-// Directory holding this file, i.e. the repository root.
+// Where the repository lives on disk, and where the handed-in files go.
 const repoRoot = fileURLToPath(new URL('.', import.meta.url));
-
-// Destination: the grader's /output, or the local override for testing.
 const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-// The scorer's caps for this competition (from the kit's gate): only
-// text_max_bytes shapes the dossier bytes; the rest make this program
-// refuse exactly where the scorer would refuse.
-const dossierCaps = {
+// The caps the scorer enforces on what lands in /output. Only the text cap
+// changes the dossier's bytes; the rest refuse an entry the scorer would
+// refuse anyway, so they are checked here up front instead of at grade time.
+const dossierLimits = {
   text_max_bytes: 163840,
   screenshots: { max: 4, max_bytes: 262144 },
   app_max_files: 993,
@@ -29,28 +32,18 @@ const dossierCaps = {
   app_path_max_bytes: 1000,
 };
 
-function stageFolder(name) {
-  const source = join(repoRoot, name);
-  const target = join(outputDir, name);
-  mkdirSync(target, { recursive: true });
-  if (existsSync(source)) {
-    cpSync(source, target, { recursive: true });
-    console.log(`staged ${name}/ -> ${target}`);
-    return true;
+function copyTree(sourceDir: string, targetDir: string): void {
+  mkdirSync(targetDir, { recursive: true });
+  if (existsSync(sourceDir)) {
+    cpSync(sourceDir, targetDir, { recursive: true });
   }
-  // screenshots/ is filled in by a later step, so a missing folder here is
-  // only a warning; a missing app/ is fatal and buildDossier will refuse it.
-  console.warn(`warning: ${name}/ not found beside main.ts; staging an empty ${name}/`);
-  return false;
 }
 
 mkdirSync(outputDir, { recursive: true });
-const appStaged = stageFolder('app');
-stageFolder('screenshots');
-if (!appStaged) {
-  throw new Error('app/ is missing beside main.ts; cannot build a dossier without the app');
-}
+copyTree(join(repoRoot, 'app'), join(outputDir, 'app'));
+copyTree(join(repoRoot, 'screenshots'), join(outputDir, 'screenshots'));
 
-const dossier = buildDossier(outputDir, dossierCaps);
-writeFileSync(join(outputDir, 'dossier.json'), dossier);
-console.log(`wrote ${join(outputDir, 'dossier.json')} (${dossier.length} bytes)`);
+writeFileSync(
+  join(outputDir, 'dossier.json'),
+  buildDossier(outputDir, dossierLimits),
+);
