@@ -1,37 +1,56 @@
-// Sunset Cover Studio — a gta6-cover-art-01 entry (Node 22, standard library only).
-// The app is this directory's app/ folder: plain static files a desktop browser
-// loads offline (app/index.html and its ES modules, vendored OFL fonts, two
-// illustrated sample photos, no network request). This program hands it in: it
-// copies app/ and screenshots/ from beside this file to /output and writes
-// /output/dossier.json, the summary the judge reads, with the vendored make.fun
-// library. Serve it locally with `node serve.ts`, then open http://localhost:8080.
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// Sunset Cover Studio — hand-in program for gta6-cover-art-01.
+//
+// Node 22, standard library only. It stages the static app (app/) and its
+// screenshots (screenshots/) from beside this file into the output directory
+// and writes /output/dossier.json, the summary the judge reads, using the
+// vendored make.fun library. Run locally with:
+//   MAKEFUN_OUTPUT_DIR=out node main.ts
+// (Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output.)
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
-const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+// Directory holding this file, i.e. the repository root.
+const repoRoot = fileURLToPath(new URL('.', import.meta.url));
 
-mkdirSync(out, { recursive: true });
-cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });
-mkdirSync(join(out, 'screenshots'), { recursive: true });
-if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+// Destination: the grader's /output, or the local override for testing.
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-// The scorer's own caps (reference/gate.json): only text_max_bytes shapes the bytes; the others refuse an entry the
-// scorer would refuse (more than 4 screenshots or one over 256 KiB; more than 993 files in app/ or 48 MiB of app
-// files, in all, or a path under app/ over 1000 bytes: app/ counts beside /output's own 1000-entry cap, its
-// screenshots/ and dossier.json).
-writeFileSync(
-  join(out, 'dossier.json'),
-  buildDossier(out, {
-    text_max_bytes: 163840,
-    screenshots: { max: 4, max_bytes: 262144 },
-    app_max_files: 993,
-    app_max_bytes: 50331648,
-    app_path_max_bytes: 1000,
-  }),
-);
+// The scorer's caps for this competition (from the kit's gate): only
+// text_max_bytes shapes the dossier bytes; the rest make this program
+// refuse exactly where the scorer would refuse.
+const dossierCaps = {
+  text_max_bytes: 163840,
+  screenshots: { max: 4, max_bytes: 262144 },
+  app_max_files: 993,
+  app_max_bytes: 50331648,
+  app_path_max_bytes: 1000,
+};
+
+function stageFolder(name) {
+  const source = join(repoRoot, name);
+  const target = join(outputDir, name);
+  mkdirSync(target, { recursive: true });
+  if (existsSync(source)) {
+    cpSync(source, target, { recursive: true });
+    console.log(`staged ${name}/ -> ${target}`);
+    return true;
+  }
+  // screenshots/ is filled in by a later step, so a missing folder here is
+  // only a warning; a missing app/ is fatal and buildDossier will refuse it.
+  console.warn(`warning: ${name}/ not found beside main.ts; staging an empty ${name}/`);
+  return false;
+}
+
+mkdirSync(outputDir, { recursive: true });
+const appStaged = stageFolder('app');
+stageFolder('screenshots');
+if (!appStaged) {
+  throw new Error('app/ is missing beside main.ts; cannot build a dossier without the app');
+}
+
+const dossier = buildDossier(outputDir, dossierCaps);
+writeFileSync(join(outputDir, 'dossier.json'), dossier);
+console.log(`wrote ${join(outputDir, 'dossier.json')} (${dossier.length} bytes)`);
